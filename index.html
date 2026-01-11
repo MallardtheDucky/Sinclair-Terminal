@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SINCLAIR // ORACLE NEXUS v12.1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --purple-core: #a855f7;
+            --purple-dark: #581c87;
+            --purple-dim: #3b0764;
+            --purple-light: #e9d5ff;
+            --purple-glow: #9333ea;
+            --gold: #f59e0b;
+            --gold-bright: #fbbf24;
+            --gold-dim: #92400e;
+            --bg-void: #020104;
+            --bg-deep: #080410;
+            --success: #10b981;
+            --danger: #ef4444;
+            --scan-color: rgba(168, 85, 247, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg-void);
+            color: var(--purple-light);
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            cursor: crosshair;
+        }
+
+        /* --- IMMERSIVE BACKGROUND & EFFECTS --- */
+
+        .cyber-bg {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(88, 28, 135, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.05) 0%, transparent 40%),
+                linear-gradient(180deg, #000000 0%, #05020a 100%);
+            z-index: 0;
+        }
+
+        /* 3D Grid Floor */
+        .grid-overlay {
+            position: fixed;
+            inset: 0;
+            background-image: 
+                linear-gradient(var(--scan-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--scan-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center top;
+            transform: perspective(1000px) rotateX(15deg) scale(1.5) translateY(-50px);
+            transform-origin: top center;
+            opacity: 0.2;
+            animation: grid-move 30s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .grid-fade {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(180deg, var(--bg-void) 10%, transparent 50%, var(--bg-void) 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        @keyframes grid-move {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 50px; }
+        }
+
+        /* CRT Effects */
+        .scanline {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.4) 51%);
+            background-size: 100% 3px;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .vignette {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle, transparent 60%, black 100%);
+            z-index: 51;
+            pointer-events: none;
+        }
+
+        /* --- UI COMPONENTS --- */
+
+        .glass {
+            background: rgba(10, 6, 20, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            box-shadow: 
+                0 4px 30px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px rgba(168, 85, 247, 0.05);
+            position: relative;
+            transition: border-color 0.3s ease;
+        }
+        
+        .glass:hover {
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+
+        .corner-accent { position: relative; }
+        .corner-accent::after {
+            content: "";
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 8px; height: 8px;
+            border-bottom: 2px solid var(--gold);
+            border-right: 2px solid var(--gold);
+            transition: all 0.3s ease;
+        }
+        .corner-accent::before {
+            content: "";
+            position: absolute;
+            top: -1px; left: -1px;
+            width: 8px; height: 8px;
+            border-top: 2px solid var(--purple-core);
+            border-left: 2px solid var(--purple-core);
+            transition: all 0.3s ease;
+        }
+        .corner-accent:hover::after, .corner-accent:hover::before {
+            width: 20px; height: 20px;
+        }
+
+        /* Buttons */
+        .cyber-btn {
+            background: linear-gradient(90deg, rgba(88, 28, 135, 0.2), rgba(0, 0, 0, 0.4));
+            border-left: 2px solid var(--purple-dim);
+            color: var(--purple-light);
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        
+        .cyber-btn:hover {
+            background: rgba(168, 85, 247, 0.1);
+            border-left-color: var(--gold);
+            color: white;
+            padding-left: 1.25rem; /* Slight shift right */
+            text-shadow: 0 0 8px var(--purple-glow);
+        }
+
+        .cyber-btn:active { transform: scale(0.99); }
+        
+        .cyber-btn.active {
+            background: rgba(168, 85, 247, 0.15);
+            border-left-color: var(--purple-core);
+            color: white;
+            box-shadow: inset 0 0 15px rgba(168, 85, 247, 0.1);
+        }
+
+        /* Typography & Glows */
+        .neon-text { text-shadow: 0 0 5px var(--purple-core), 0 0 10px var(--purple-glow); }
+        .gold-glow { text-shadow: 0 0 5px var(--gold); }
+        .danger-glow { text-shadow: 0 0 5px var(--danger); }
+        .success-glow { text-shadow: 0 0 5px var(--success); }
+        
+        .mono { font-family: 'Share Tech Mono', monospace; }
+
+        /* Animations */
+        .blink { animation: blink-anim 1s step-end infinite; }
+        @keyframes blink-anim { 50% { opacity: 0; } }
+
+        .spin-slow { animation: spin 12s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        .custom-scroll::-webkit-scrollbar-thumb { background: var(--purple-dim); border-radius: 2px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--purple-core); }
+
+        /* Toast Notification */
+        #toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(10, 5, 20, 0.95);
+            border: 1px solid var(--purple-core);
+            border-left-width: 4px;
+            padding: 12px 20px;
+            color: white;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.8);
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            min-width: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: auto;
+            backdrop-filter: blur(4px);
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.warning { border-left-color: var(--gold); }
+        .toast.danger { border-left-color: var(--danger); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- VISUAL LAYERS -->
+    <div class="cyber-bg"></div>
+    <div class="grid-overlay"></div>
+    <div class="grid-fade"></div>
+    <div class="scanline"></div>
+    <div class="vignette"></div>
+    <div id="toast-container"></div>
+
+    <!-- MAIN APPLICATION -->
+    <div id="app" class="relative z-10 h-full w-full flex flex-col"></div>
+
+<script>
+    // ============================================
+    // SINCLAIR CORPORATE MANDATE - DATA CORE
+    // ============================================
+
+    const MANDATE_DATA = {
+        user: {
+            name: "DIR. A. CRANE",
+            id: "EXEC_742",
+            rank: "EXECUTIVE TIER",
+            clearance: "OMEGA-5",
+            department: "INTELLIGENCE",
+            img: "https://api.dicebear.com/7.x/shapes/svg?seed=Crane&backgroundColor=0a0514&shape1Color=a855f7"
+        },
+        system: {
+            version: "NEXUS v12.1",
+            threats: 3,
+            cpu: 42,
+            memory: 64,
+            uptime: "842 DAYS"
+        },
+        mandate: {
+            population: 45210944,
+            gdp: 6.74, // Trillions
+            compliance: 847,
+            defcon: 4
+        },
+        news: [
+            "SINCLAIR SPIRE REPORTS 14% Q3 GROWTH",
+            "SECTOR 9 CURFEW EXTENDED - CITIZENS ADVISED TO REMAIN INDOORS",
+            "NEW AUGMENTATION PROTOCOLS FOR LABOR TIER EFFECTIVE IMMEDIATELY",
+            "WATER RATIONING REDUCED IN EXECUTIVE DISTRICTS",
+            "REMINDER: FAILURE TO REPORT DISSENT IS A CLASS B FELONY"
+        ]
+    };
+
+    const TARGETS = [
+        { id: "T-8841", name: "UNIT 734", alias: "TECHNOMANCER", loc: "SECTOR 9 (UNDERCITY)", score: 240, status: "CRITICAL", threat: "HIGH", desc: "Suspected leader of 'Free Circuit' resistance. Illegal modification of labor chips." },
+        { id: "T-0091", name: "DR. A. KORLOV", alias: "PROMETHEUS", loc: "R&D LAB 4", score: 920, status: "EXCELLENT", threat: "NONE", desc: "Lead researcher on Project Eternity. Exemplary behavior pattern." },
+        { id: "T-4429", name: "SUBJ. ALPHA", alias: "GHOST", loc: "CLASSIFIED", score: 1000, status: "CLASSIFIED", threat: "UNKNOWN", desc: "Operative active. Do not approach. Report sightings to Spire immediately." },
+        { id: "T-1102", name: "S. VANCE", alias: "GAMBLER", loc: "CASINO DISTRICT B", score: 410, status: "WARNING", threat: "DEBT", desc: "Gambling debt exceeds projected lifetime earnings. Reassignment imminent." },
+        { id: "T-9931", name: "UNKNOWN", alias: "GLITCH", loc: "THE NEXUS NODE 7", score: 0, status: "CRITICAL", threat: "AI ANOMALY", desc: "Recurring data corruption signature. Possible rogue AI fragment." }
+    ];
+
+    // ============================================
+    // STATE & ENGINE
+    // ============================================
+
+    const STATE = {
+        view: 'boot', // boot, login, terminal
+        bootProgress: 0,
+        module: 'overview',
+        input: '',
+        cliInput: '',
+        targetDetail: null,
+        logs: [
+            "SYSTEM INITIALIZED...",
+            "CONNECTION ESTABLISHED: SECURE",
+            "BIOMETRIC HANDSHAKE COMPLETE"
+        ]
+    };
+
+    // Initialize
+    window.onload = function() {
+        lucide.createIcons();
+        render();
+        startSimulation();
+    };
+
+    // Live Data Simulation
+    function startSimulation() {
+        setInterval(() => {
+            // Fluctuate System Stats
+            MANDATE_DATA.system.cpu = Math.max(10, Math.min(95, MANDATE_DATA.system.cpu + (Math.random() > 0.5 ? 3 : -3)));
+            
+            // Random population flux
+            if(Math.random() > 0.7) MANDATE_DATA.mandate.population += Math.floor(Math.random() * 8) - 2;
+
+            // DOM Updates (Performance optimized: direct manipulation)
+            const cpuBar = document.getElementById('cpu-bar');
+            const cpuText = document.getElementById('cpu-text');
+            if(cpuBar && cpuText) {
+                cpuBar.style.width = `${MANDATE_DATA.system.cpu}%`;
+                cpuBar.className = `h-full transition-all duration-500 ${MANDATE_DATA.system.cpu > 80 ? 'bg-red-500 shadow-[0_0_10px_red]' : 'bg-purple-500'}`;
+                cpuText.innerText = `${MANDATE_DATA.system.cpu}%`;
+            }
+
+            const popText = document.getElementById('pop-text');
+            if(popText) popText.innerText = MANDATE_DATA.mandate.population.toLocaleString();
+
+            // Nexus Data Stream Logic (if module is active)
+            if(STATE.module === 'nexus') {
+                const stream = document.getElementById('nexus-stream');
+                if(stream) {
+                    const row = document.createElement('div');
+                    row.className = "flex gap-4 mb-1 text-[10px] animate-fade-in";
+                    const status = Math.random() > 0.9 ? '<span class="text-red-500 font-bold">BLOCKED</span>' : '<span class="text-green-500">VERIFIED</span>';
+                    row.innerHTML = `
+                        <span class="text-purple-500 w-20 font-mono">${new Date().toLocaleTimeString()}</span>
+                        <span class="text-white w-24 font-mono">PKT_${Math.floor(Math.random()*9999)}</span>
+                        <span class="text-gray-400 flex-1 truncate font-mono">SRC: ${['ARASAKA', 'MILITECH', 'UNKNOWN', 'LOCAL'][Math.floor(Math.random()*4)]}_NODE</span>
+                        ${status}
+                    `;
+                    stream.prepend(row);
+                    if(stream.children.length > 25) stream.lastElementChild.remove();
+                }
+            }
+
+        }, 1000);
+    }
+
+    // ============================================
+    // ROUTER / RENDERER
+    // ============================================
+
+    function render() {
+        const app = document.getElementById('app');
+        // Clear content to prevent duplication events, but ideally we diff. For this scale, innerHTML replacement is fine.
+        
+        if (STATE.view === 'boot') renderBoot(app);
+        else if (STATE.view === 'login') renderLogin(app);
+        else if (STATE.view === 'terminal') renderTerminal(app);
+        
+        lucide.createIcons();
+    }
+
+    // ============================================
+    // BOOT SEQUENCE
+    // ============================================
+
+    function renderBoot(el) {
+        const p = STATE.bootProgress;
+        // Visuals
+        const barColor = p < 30 ? 'bg-red-500' : p < 70 ? 'bg-gold' : 'bg-purple-500';
+        
+        el.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full w-full z-50 select-none">
+                <div class="w-48 h-48 relative mb-12">
+                    <div class="absolute inset-0 border-4 border-purple-900/30 rounded-full"></div>
+                    <div class="absolute inset-0 border-t-4 border-purple-500 rounded-full spin-slow"></div>
+                    <div class="absolute inset-4 border-b-4 border-gold rounded-full spin-slow" style="animation-direction: reverse; animation-duration: 6s;"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="text-7xl font-bold font-orbitron text-white tracking-tighter blink" style="text-shadow: 0 0 20px var(--purple-core);">S</span>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col items-center gap-2 mb-12">
+                    <h1 class="text-4xl font-bold tracking-[0.5em] text-white neon-text">SINCLAIR</h1>
+                    <div class="text-gold font-mono text-xs tracking-widest bg-gold/10 px-4 py-1 border border-gold/20 rounded">ORACLE NEXUS OS v12.1</div>
+                </div>
+
+                <div class="w-80 bg-gray-900/50 border border-white/10 h-1 mb-4 overflow-hidden rounded-full">
+                    <div class="h-full ${barColor} transition-all duration-100 ease-out shadow-[0_0_10px_currentColor]" style="width: ${p}%"></div>
+                </div>
+                
+                <div class="font-mono text-xs text-purple-300 h-6 flex items-center">
+                    <span class="mr-2 text-gold">></span> ${getBootLog(p)}
+                </div>
+            </div>
+        `;
+
+        // Logic
+        if (STATE.bootProgress < 100) {
+            // Variable speed for realism
+            const step = Math.random() > 0.8 ? 5 : 1; 
+            setTimeout(() => {
+                STATE.bootProgress += step;
+                if(STATE.bootProgress > 100) STATE.bootProgress = 100;
+                render();
+            }, 30);
+        } else {
+            setTimeout(() => { STATE.view = 'login'; render(); }, 800);
+        }
+    }
+
+    function getBootLog(p) {
+        if(p < 15) return "INITIALIZING QUANTUM CORES...";
+        if(p < 30) return "LOADING NEURAL MATRICES...";
+        if(p < 50) return "ESTABLISHING SECURE HANDSHAKE...";
+        if(p < 70) return "DECRYPTING USER PROFILE [EXEC_742]...";
+        if(p < 90) return "SYNCING SURVEILLANCE MESH...";
+        return "SYSTEM READY. WELCOME DIRECTOR.";
+    }
+
+    // ============================================
+    // LOGIN
+    // ============================================
+
+    function renderLogin(el) {
+        el.innerHTML = `
+            <div class="flex flex-col items-center justify-center h-full w-full relative">
+                <!-- Login Box -->
+                <div class="glass p-12 max-w-md w-full corner-accent fade-in relative z-10 flex flex-col gap-8">
+                    <div class="text-center">
+                        <div class="inline-flex items-center justify-center w-16 h-16 border border-purple-500 rounded-full mb-6 bg-purple-500/10 shadow-[0_0_20px_rgba(168,85,247,0.2)]">
+                            <i data-lucide="shield-check" class="w-8 h-8 text-purple-400"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-white tracking-widest mb-1 font-orbitron">SECURE ACCESS</h2>
+                        <div class="text-xs text-purple-400 font-mono tracking-wider">BIOMETRIC VERIFICATION REQUIRED</div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="key" class="w-4 h-4 text-purple-500 group-hover:text-gold transition-colors"></i>
+                            </div>
+                            <input 
+                                type="password" 
+                                class="w-full bg-black/40 border border-purple-900 text-white text-center py-4 px-10 focus:outline-none focus:border-gold focus:bg-black/60 font-mono tracking-[0.3em] transition-all duration-300 placeholder-purple-800"
+                                placeholder="PASSPHRASE"
+                                value="${STATE.input}"
+                                oninput="STATE.input = this.value"
+                                onkeydown="if(event.key === 'Enter') handleLogin()"
+                                autofocus
+                            >
+                            <div class="absolute inset-y-0 right-0 pr-4 flex items-center">
+                                <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_5px_red]"></div>
+                            </div>
+                        </div>
+
+                        <button onclick="handleLogin()" class="cyber-btn w-full py-4 font-bold text-sm tracking-[0.2em] hover:bg-purple-600/20">
+                            AUTHENTICATE
+                        </button>
+                    </div>
+
+                    <div class="text-center border-t border-white/5 pt-6">
+                        <div class="text-[10px] text-gray-500 font-mono leading-relaxed">
+                            UNAUTHORIZED ACCESS ATTEMPT IS A CLASS A FELONY.<br>
+                            PENALTY: FORCED LABOR REASSIGNMENT OR NEURAL WIPING.<br>
+                            TERMINAL ID: LV-994-A
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function handleLogin() {
+        // Any password works for demo, but specific ones give special toasts
+        const input = STATE.input.trim().toUpperCase();
+        if (input.length > 0) {
+            showToast("IDENTITY CONFIRMED. WELCOME, DIRECTOR CRANE.", "success");
+            STATE.view = 'terminal';
+            render();
+        } else {
+            showToast("INPUT REQUIRED", "danger");
+        }
+    }
+
+    // ============================================
+    // TERMINAL LAYOUT
+    // ============================================
+
+    function renderTerminal(el) {
+        const m = STATE.module;
+        
+        el.innerHTML = `
+            <div class="h-full flex flex-col bg-transparent">
+                <!-- HEADER -->
+                <header class="h-16 glass border-b border-purple-500/20 flex items-center justify-between px-6 shrink-0 z-20 backdrop-blur-md">
+                    <div class="flex items-center gap-6">
+                        <div class="flex items-center gap-3 cursor-pointer group" onclick="setModule('overview')">
+                            <div class="w-10 h-10 bg-purple-900/20 border border-purple-500 flex items-center justify-center group-hover:bg-purple-500 group-hover:text-black transition-all duration-300">
+                                <span class="font-bold text-lg font-orbitron">S</span>
+                            </div>
+                            <div>
+                                <div class="text-xl font-bold tracking-tighter text-white neon-text group-hover:text-gold transition-colors">SINCLAIR</div>
+                                <div class="text-[10px] text-gold tracking-widest font-mono">MANDATE OS</div>
+                            </div>
+                        </div>
+                        <div class="h-8 w-px bg-purple-800/50 hidden md:block"></div>
+                        <div class="text-xs font-mono text-purple-300 hidden md:block">
+                            <span class="text-gray-500">LOC:</span> LAS VEGAS SPIRE <span class="mx-2 text-purple-800">|</span> 
+                            <span class="text-gray-500">DEFCON:</span> <span class="text-red-500 font-bold">${MANDATE_DATA.mandate.defcon}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-8">
+                        <!-- Live Header Stats -->
+                        <div class="hidden lg:flex gap-8 font-mono text-xs">
+                            <div class="text-right">
+                                <div class="text-gray-500 text-[10px] mb-1">POPULATION</div>
+                                <div class="text-white font-bold" id="pop-text">${MANDATE_DATA.mandate.population.toLocaleString()}</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-gray-500 text-[10px] mb-1">GDP</div>
+                                <div class="text-white font-bold">$${MANDATE_DATA.mandate.gdp}T</div>
+                            </div>
+                            <div class="text-right w-24">
+                                <div class="flex justify-between text-gray-500 text-[10px] mb-1">
+                                    <span>SYS.LOAD</span>
+                                    <span id="cpu-text" class="text-white">42%</span>
+                                </div>
+                                <div class="w-full bg-gray-800 h-1.5 overflow-hidden rounded-sm">
+                                    <div id="cpu-bar" class="h-full bg-purple-500 w-[42%] transition-all duration-300"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- User Profile -->
+                        <div class="flex items-center gap-4 pl-6 border-l border-purple-800/30">
+                            <div class="text-right hidden sm:block">
+                                <div class="text-xs font-bold text-white tracking-wider">${MANDATE_DATA.user.name}</div>
+                                <div class="text-[10px] text-purple-400 font-mono">${MANDATE_DATA.user.clearance}</div>
+                            </div>
+                            <div class="w-10 h-10 border border-purple-500/50 rounded-full overflow-hidden relative bg-black">
+                                <img src="${MANDATE_DATA.user.img}" class="w-full h-full object-cover opacity-80" alt="User">
+                                <div class="absolute inset-0 bg-purple-500/10"></div>
+                            </div>
+                            <button onclick="STATE.view='login'; render()" class="text-purple-400 hover:text-red-500 transition-colors p-2" title="Disconnect">
+                                <i data-lucide="power" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="flex-1 flex overflow-hidden">
+                    <!-- SIDEBAR NAVIGATION -->
+                    <aside class="w-64 glass border-r border-purple-500/20 flex flex-col hidden md:flex z-10">
+                        <div class="p-2 space-y-1 mt-4">
+                            ${navBtn('overview', 'layout-dashboard', 'COMMAND DECK')}
+                            ${navBtn('compliance', 'eye', 'COMPLIANCE')}
+                            ${navBtn('defense', 'shield-alert', 'DEFENSE GRID')}
+                            ${navBtn('nexus', 'network', 'DATA NEXUS')}
+                            ${navBtn('economy', 'bar-chart-2', 'ECONOMY')}
+                            ${navBtn('spire', 'landmark', 'THE SPIRE')}
+                            ${navBtn('population', 'users', 'POPULATION')}
+                            ${navBtn('archives', 'database', 'ARCHIVES')}
+                        </div>
+                        
+                        <!-- CLI SECTION -->
+                        <div class="mt-auto p-4 border-t border-purple-500/20 bg-black/60 backdrop-blur-md">
+                            <div class="text-[10px] text-gold font-mono mb-2 flex justify-between uppercase">
+                                <span>Terminal_CLI</span>
+                                <span class="text-green-500">ONLINE</span>
+                            </div>
+                            <div class="h-32 overflow-y-auto font-mono text-[10px] text-green-500/80 mb-2 space-y-1 custom-scroll p-1" id="cli-output">
+                                ${STATE.logs.map(l => `<div><span class="opacity-50">></span> ${l}</div>`).join('')}
+                            </div>
+                            <div class="flex items-center gap-2 border-b border-purple-500/30 focus-within:border-gold transition-colors">
+                                <span class="text-gold text-xs font-mono">></span>
+                                <input type="text" 
+                                    class="w-full bg-transparent text-xs font-mono text-white focus:outline-none pb-1 placeholder-purple-800"
+                                    placeholder="ENTER COMMAND..."
+                                    value="${STATE.cliInput}"
+                                    oninput="STATE.cliInput = this.value"
+                                    onkeydown="if(event.key === 'Enter') handleCLI(this)"
+                                >
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- MAIN CONTENT AREA -->
+                    <main class="flex-1 relative overflow-y-auto custom-scroll p-4 lg:p-8 scroll-smooth" id="main-content">
+                        <!-- Decorative Background Icon -->
+                        <div class="absolute inset-0 z-0 opacity-[0.03] pointer-events-none flex items-center justify-center overflow-hidden">
+                            <i data-lucide="${getModuleIcon(m)}" class="w-[600px] h-[600px] text-purple-500 animate-pulse"></i>
+                        </div>
+                        
+                        <div class="relative z-10 max-w-7xl mx-auto min-h-full flex flex-col animate-fade-in">
+                            ${renderModule()}
+                        </div>
+                    </main>
+                </div>
+
+                <!-- FOOTER NEWS TICKER -->
+                <footer class="h-8 glass border-t border-purple-500/20 flex items-center px-4 overflow-hidden z-20 shrink-0 bg-black">
+                    <div class="flex items-center gap-2 mr-6 shrink-0">
+                        <div class="w-2 h-2 bg-gold rounded-full animate-pulse"></div>
+                        <div class="text-[10px] font-bold text-gold tracking-widest">NEWS FEED</div>
+                    </div>
+                    <div class="flex-1 overflow-hidden relative h-full flex items-center">
+                        <div class="whitespace-nowrap animate-[marquee_25s_linear_infinite] hover:[animation-play-state:paused] cursor-help" onclick="showToast('NEWS FEED: ACCESS RESTRICTED', 'warning')">
+                            ${MANDATE_DATA.news.map(n => `<span class="mr-16 text-xs font-mono text-purple-300"><span class="text-purple-600 mr-2">>></span> ${n}</span>`).join('')}
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        `;
+    }
+
+    function navBtn(id, icon, label) {
+        const active = STATE.module === id;
+        return `
+            <button onclick="setModule('${id}')" 
+                class="w-full flex items-center gap-4 px-6 py-3 text-sm font-medium transition-all duration-200 border-l-[3px] group
+                ${active ? 'bg-purple-500/10 border-gold text-white shadow-[inset_10px_0_20px_rgba(168,85,247,0.1)]' : 'border-transparent text-purple-400 hover:bg-white/5 hover:text-white hover:border-purple-600'}">
+                <i data-lucide="${icon}" class="w-4 h-4 transition-transform group-hover:scale-110 ${active ? 'text-gold' : ''}"></i>
+                <span class="tracking-wider font-rajdhani font-semibold">${label}</span>
+                ${active ? '<i data-lucide="chevron-right" class="w-3 h-3 ml-auto text-gold animate-pulse"></i>' : ''}
+            </button>
+        `;
+    }
+
+    function getModuleIcon(m) {
+        const map = { overview: 'layout-dashboard', compliance: 'eye', defense: 'shield-alert', nexus: 'network', economy: 'bar-chart-2', spire: 'landmark', population: 'users', archives: 'database' };
+        return map[m] || 'circle';
+    }
+
+    // ============================================
+    // LOGIC & INTERACTIONS
+    // ============================================
+
+    function setModule(id) {
+        if(STATE.module === id && STATE.targetDetail === null) return;
+        STATE.module = id;
+        STATE.targetDetail = null;
+        render();
+    }
+
+    function showToast(msg, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const el = document.createElement('div');
+        el.className = `toast ${type}`;
+        el.innerHTML = `
+            <div class="flex flex-col">
+                <span class="font-bold tracking-wider mb-1 uppercase text-[10px] opacity-60">${type}</span>
+                <span>${msg}</span>
+            </div>
+            <i data-lucide="${type === 'success' ? 'check-circle' : type === 'danger' ? 'alert-octagon' : type === 'warning' ? 'alert-triangle' : 'info'}" class="w-5 h-5 ml-4 opacity-80"></i>
+        `;
+        container.appendChild(el);
+        lucide.createIcons();
+        
+        // Sound effect simulation (visual flash on screen edges maybe? keeping it simple for now)
+        
+        setTimeout(() => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(20px)';
+            setTimeout(() => el.remove(), 300);
+        }, 4000);
+    }
+
+    function handleCLI(input) {
+        const cmd = input.value.trim().toUpperCase();
+        if(!cmd) return;
+        
+        addLog(cmd);
+        input.value = '';
+        STATE.cliInput = '';
+
+        // Simulate processing delay
+        setTimeout(() => {
+            switch(cmd) {
+                case 'HELP':
+                    addLog("AVAILABLE COMMANDS:", "text-gold");
+                    addLog("  STATUS   - System Diagnostic");
+                    addLog("  SCAN     - Sector Scan");
+                    addLog("  CLEAR    - Clear Log");
+                    addLog("  DATE     - System Time");
+                    addLog("  LOGOUT   - End Session");
+                    break;
+                case 'STATUS':
+                    addLog("SYSTEM: OPTIMAL");
+                    addLog(`CPU: ${MANDATE_DATA.system.cpu}% | MEM: ${MANDATE_DATA.system.memory}%`);
+                    addLog(`THREATS: ${MANDATE_DATA.system.threats} ACTIVE`);
+                    break;
+                case 'SCAN':
+                    addLog("INITIATING SCAN SEQUENCE...", "text-purple-400");
+                    setTimeout(() => addLog("SCAN COMPLETE. SECTOR 9 UNSTABLE.", "text-red-400"), 1200);
+                    break;
+                case 'CLEAR':
+                    STATE.logs = [];
+                    render();
+                    break;
+                case 'DATE':
+                    addLog(new Date().toLocaleString());
+                    break;
+                case 'LOGOUT':
+                    STATE.view = 'login';
+                    render();
+                    break;
+                default:
+                    addLog(`ERR: UNKNOWN COMMAND '${cmd}'`, "text-red-500");
+            }
+        }, 300);
+    }
+
+    function addLog(msg, colorClass = "") {
+        STATE.logs.push(msg);
+        if(STATE.logs.length > 50) STATE.logs.shift();
+        
+        // Direct DOM update for performance
+        const output = document.getElementById('cli-output');
+        if(output) {
+            const div = document.createElement('div');
+            if(colorClass) div.className = colorClass;
+            div.innerHTML = `<span class="opacity-50 mr-2">></span> ${msg}`;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+    }
+
+    // ============================================
+    // MODULE RENDERERS
+    // ============================================
+
+    function renderModule() {
+        if(STATE.targetDetail && STATE.module === 'compliance') return renderTargetDetail();
+
+        switch(STATE.module) {
+            case 'overview': return renderOverview();
+            case 'compliance': return renderCompliance();
+            case 'defense': return renderDefense();
+            case 'nexus': return renderNexus();
+            case 'economy': return renderEconomy();
+            case 'spire': return renderSpire();
+            case 'population': return renderPopulation();
+            case 'archives': return renderArchives();
+            default: return `<div class="p-10 text-center opacity-50 font-mono">MODULE ERROR: 404 NOT FOUND</div>`;
+        }
+    }
+
+    // MODULE: OVERVIEW
+    function renderOverview() {
+        return `
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- ALERTS PANEL -->
+                <div class="glass corner-accent p-6 flex flex-col gap-4 bg-red-900/5 border-red-500/20">
+                    <div class="flex justify-between items-center border-b border-white/10 pb-2 mb-2">
+                        <h3 class="text-gold font-bold tracking-widest text-sm flex items-center gap-2">
+                            <i data-lucide="alert-triangle" class="w-4 h-4"></i> PRIORITY ALERTS
+                        </h3>
+                        <span class="text-[10px] bg-red-500 text-black px-1.5 py-0.5 font-bold rounded animate-pulse">${MANDATE_DATA.system.threats} NEW</span>
+                    </div>
+                    
+                    <div class="space-y-2 flex-1 overflow-y-auto custom-scroll pr-1 max-h-60">
+                        <div class="p-3 bg-white/5 border-l-2 border-red-500 hover:bg-white/10 transition-colors cursor-pointer group" onclick="showToast('DRONE TEAM DISPATCHED', 'success')">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-white text-xs font-bold group-hover:text-red-400">UNAUTHORIZED SIGNAL</span>
+                                <span class="text-[10px] text-gray-500 font-mono">04:22</span>
+                            </div>
+                            <div class="text-[10px] text-gray-400">SECTOR 9 DETECTED ENCRYPTED TRANSMISSION.</div>
+                        </div>
+                        <div class="p-3 bg-white/5 border-l-2 border-gold hover:bg-white/10 transition-colors cursor-pointer group">
+                             <div class="flex justify-between items-center mb-1">
+                                <span class="text-white text-xs font-bold group-hover:text-gold">POWER FLUCTUATION</span>
+                                <span class="text-[10px] text-gray-500 font-mono">02:15</span>
+                            </div>
+                            <div class="text-[10px] text-gray-400">GRID B OUTPUT UNSTABLE. REROUTING...</div>
+                        </div>
+                    </div>
+                    
+                    <button class="cyber-btn py-2 text-xs w-full mt-2" onclick="showToast('RUNNING FULL DIAGNOSTIC...', 'info')">
+                        RUN SYSTEM DIAGNOSTICS
+                    </button>
+                </div>
+
+                <!-- MAIN STATUS HUD -->
+                <div class="lg:col-span-2 glass p-8 relative overflow-hidden flex flex-col justify-center items-center text-center">
+                    <div class="absolute inset-0 grid-overlay opacity-30"></div>
+                    
+                    <div class="relative z-10 flex flex-col items-center mb-8">
+                        <div class="w-40 h-40 rounded-full border-4 border-purple-500/30 flex items-center justify-center relative bg-black/50 backdrop-blur-sm shadow-[0_0_50px_rgba(168,85,247,0.1)]">
+                            <div class="absolute inset-0 rounded-full border-t-2 border-gold spin-slow"></div>
+                            <div class="absolute inset-2 rounded-full border-b-2 border-purple-500 spin-slow" style="animation-duration: 8s; animation-direction: reverse;"></div>
+                            <div class="flex flex-col items-center">
+                                <span class="text-5xl font-bold text-white neon-text font-orbitron">98%</span>
+                                <span class="text-[10px] text-gold font-mono tracking-widest mt-1">EFFICIENCY</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-4 w-full max-w-xl">
+                        <div class="p-4 bg-white/5 border border-white/5 rounded hover:border-purple-500/50 transition-colors">
+                            <div class="text-2xl font-bold text-white font-mono">${MANDATE_DATA.mandate.compliance}</div>
+                            <div class="text-[10px] text-gray-400 tracking-widest uppercase">Avg Compliance</div>
+                        </div>
+                        <div class="p-4 bg-white/5 border border-white/5 rounded hover:border-red-500/50 transition-colors">
+                            <div class="text-2xl font-bold text-red-500 font-mono flex items-center justify-center gap-2">
+                                <i data-lucide="shield-alert" class="w-5 h-5"></i> 4
+                            </div>
+                            <div class="text-[10px] text-gray-400 tracking-widest uppercase">DEFCON Level</div>
+                        </div>
+                        <div class="p-4 bg-white/5 border border-white/5 rounded hover:border-green-500/50 transition-colors">
+                            <div class="text-2xl font-bold text-green-500 font-mono">STABLE</div>
+                            <div class="text-[10px] text-gray-400 tracking-widest uppercase">Grid Status</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUICK ACTIONS / WATCHLIST -->
+                <div class="lg:col-span-3 glass corner-accent p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-white font-bold tracking-widest text-sm flex items-center gap-2">
+                            <i data-lucide="crosshair" class="w-4 h-4 text-purple-500"></i> CRITICAL WATCHLIST
+                        </h3>
+                        <button class="cyber-btn px-4 py-1 text-xs" onclick="setModule('compliance')">VIEW ALL TARGETS</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        ${TARGETS.slice(0, 3).map(t => `
+                            <div class="p-4 bg-black/40 border border-white/10 hover:border-purple-500 hover:bg-purple-900/10 transition-all cursor-pointer group relative overflow-hidden" 
+                                onclick="STATE.module='compliance'; STATE.targetDetail='${t.id}'; render();">
+                                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_1s_infinite]"></div>
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="font-bold text-sm text-white group-hover:text-gold transition-colors">${t.name}</span>
+                                    <span class="text-[10px] px-2 py-0.5 bg-red-900/50 text-red-400 border border-red-900 rounded">${t.status}</span>
+                                </div>
+                                <div class="text-xs text-gray-400 font-mono mb-3">${t.loc}</div>
+                                <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="h-full ${t.score < 500 ? 'bg-red-500' : 'bg-green-500'}" style="width: ${t.score/10}%"></div>
+                                </div>
+                                <div class="flex justify-between text-[10px] mt-1 text-gray-500 font-mono">
+                                    <span>SCORE</span>
+                                    <span>${t.score}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // MODULE: COMPLIANCE
+    function renderCompliance() {
+        return `
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full pb-2">
+                <!-- LIVE FEED -->
+                <div class="lg:col-span-2 glass corner-accent relative overflow-hidden flex flex-col h-[500px] lg:h-auto">
+                    <div class="absolute top-4 left-4 z-20 flex gap-2">
+                        <span class="text-xs bg-red-600 text-white px-2 py-1 font-bold animate-pulse rounded-sm">LIVE</span>
+                        <span class="text-xs bg-black/50 text-white px-2 py-1 font-mono border border-white/20 rounded-sm">DRONE_FEED_884</span>
+                    </div>
+                    <div class="absolute top-4 right-4 z-20">
+                         <span class="text-[10px] font-mono text-green-500 bg-black/80 px-2 py-1 border border-green-500/30">RECOGNITION: ACTIVE</span>
+                    </div>
+                    
+                    <!-- Simulated Camera View -->
+                    <div class="flex-1 bg-black relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(#333 1px, transparent 1px); background-size: 20px 20px;"></div>
+                        
+                        <!-- Moving Targets (CSS Animation) -->
+                        ${Array.from({length: 5}).map((_,i) => `
+                            <div class="absolute w-12 h-20 border border-green-500/50 flex flex-col items-center justify-start transition-all duration-1000 ease-linear"
+                                style="left: ${15 + (i*18)}%; top: ${30 + (Math.sin(i*10)*15)}%; animation: float ${4+i}s infinite alternate ease-in-out;">
+                                <div class="w-full h-full bg-green-500/5 relative group">
+                                     <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-black/80 text-green-500 text-[8px] px-1 font-mono border border-green-500/50 whitespace-nowrap">
+                                        ID: ${84920 + i}
+                                     </div>
+                                     <!-- Face box -->
+                                     <div class="w-4 h-4 border border-green-400 absolute top-2 left-1/2 -translate-x-1/2"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+
+                        <!-- HUD Overlay -->
+                        <div class="absolute inset-8 border border-white/10 pointer-events-none">
+                            <div class="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-white/50"></div>
+                            <div class="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-white/50"></div>
+                            <div class="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-white/50"></div>
+                            <div class="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-white/50"></div>
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 border border-red-500/30 rounded-full flex items-center justify-center">
+                                <div class="w-1 h-1 bg-red-500 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-36 bg-black/90 border-t border-purple-500/30 p-4 font-mono text-xs overflow-y-auto custom-scroll space-y-1">
+                        <div class="text-green-500 flex gap-2"><span class="opacity-50">>></span> FACIAL RECOGNITION ACTIVE</div>
+                        <div class="text-gray-400 flex gap-2"><span class="opacity-50">>></span> SCANNING CROWD DENSITY... NOMINAL</div>
+                        <div class="text-purple-400 flex gap-2"><span class="opacity-50">>></span> TARGET ID: 99482 [MATCH 84%] - FLAGGED FOR REVIEW</div>
+                        <div class="text-gray-400 flex gap-2"><span class="opacity-50">>></span> UPDATING CRIME PROBABILITY MATRICES...</div>
+                        <div class="text-red-500 flex gap-2"><span class="opacity-50">>></span> ANOMALY DETECTED IN QUADRANT 4</div>
+                    </div>
+                </div>
+
+                <!-- TARGET LIST SIDEBAR -->
+                <div class="glass corner-accent p-4 flex flex-col overflow-hidden h-full">
+                    <h3 class="text-gold font-bold mb-4 tracking-widest text-sm border-b border-white/10 pb-2">ACTIVE TARGETS</h3>
+                    <div class="flex-1 overflow-y-auto space-y-3 pr-1 custom-scroll">
+                        ${TARGETS.map(t => `
+                            <div class="p-3 bg-white/5 border-l-2 border-transparent hover:bg-purple-900/20 hover:border-purple-500 transition-all cursor-pointer group"
+                                onclick="STATE.targetDetail='${t.id}'; render();">
+                                <div class="flex justify-between items-start mb-1">
+                                    <div class="font-bold text-white text-sm group-hover:text-gold">${t.name}</div>
+                                    <div class="text-[10px] font-mono text-gray-500">${t.id}</div>
+                                </div>
+                                <div class="text-xs text-purple-300 mb-2 truncate">${t.alias}</div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[10px] text-gray-400">${t.status}</span>
+                                    <span class="text-sm font-bold font-mono ${t.score < 500 ? 'text-red-500' : 'text-green-500'}">${t.score}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="mt-4 cyber-btn py-3 text-xs w-full shadow-[0_0_10px_rgba(239,68,68,0.2)]" onclick="showToast('WARRANT REQUEST SENT TO ORACLE', 'warning')">
+                        ISSUE MASS WARRANT
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderTargetDetail() {
+        const t = TARGETS.find(x => x.id === STATE.targetDetail);
+        if(!t) return renderCompliance();
+
+        return `
+            <div class="animate-fade-in max-w-5xl mx-auto h-full flex flex-col justify-center">
+                <button onclick="STATE.targetDetail=null; render()" class="flex items-center text-gold text-xs hover:text-white mb-6 transition-colors w-max group">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform"></i> RETURN TO MATRIX
+                </button>
+
+                <div class="glass corner-accent p-8 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 text-[15rem] font-bold text-white opacity-[0.02] pointer-events-none leading-none select-none font-orbitron">
+                        ${t.score}
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-8 relative z-10">
+                        <!-- Profile Image -->
+                        <div class="w-64 h-64 bg-black border border-purple-500 flex items-center justify-center shrink-0 relative overflow-hidden group">
+                            <i data-lucide="user" class="w-24 h-24 text-purple-800"></i>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+                            <div class="absolute bottom-4 left-0 right-0 text-center">
+                                <div class="text-lg font-bold text-white font-mono">${t.id}</div>
+                                <div class="text-[10px] text-red-500 animate-pulse">SURVEILLANCE ACTIVE</div>
+                            </div>
+                            <!-- Scanlines on image -->
+                            <div class="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-20 background-size-[100%_2px,3px_100%] pointer-events-none"></div>
+                        </div>
+
+                        <div class="flex-1 flex flex-col">
+                            <div class="flex justify-between items-start border-b border-purple-500/30 pb-4 mb-6">
+                                <div>
+                                    <h1 class="text-4xl font-bold text-white mb-1 tracking-tight font-orbitron neon-text">${t.name}</h1>
+                                    <div class="text-gold font-mono tracking-widest text-sm flex items-center gap-2">
+                                        ALIAS: ${t.alias}
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-5xl font-bold font-mono ${t.score < 500 ? 'text-red-500' : 'text-green-500'}">${t.score}</div>
+                                    <div class="text-[10px] text-gray-500 tracking-widest uppercase">Compliance Score</div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-6 mb-6">
+                                <div class="p-4 bg-white/5 rounded border border-white/5">
+                                    <div class="text-[10px] text-gray-500 uppercase mb-1">Last Known Location</div>
+                                    <div class="text-lg text-white font-mono flex items-center">
+                                        <i data-lucide="map-pin" class="w-4 h-4 mr-2 text-purple-500"></i> ${t.loc}
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-white/5 rounded border border-white/5">
+                                    <div class="text-[10px] text-gray-500 uppercase mb-1">Threat Level</div>
+                                    <div class="text-lg text-red-500 font-bold font-mono flex items-center">
+                                        <i data-lucide="siren" class="w-4 h-4 mr-2"></i> ${t.threat}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-8 p-4 bg-black/40 border-l-2 border-purple-500 text-sm text-gray-300 font-mono leading-relaxed">
+                                <span class="text-purple-400 font-bold">>> DOSSIER:</span> ${t.desc}
+                            </div>
+
+                            <div class="mt-auto flex gap-4">
+                                <button class="cyber-btn flex-1 py-4 flex items-center justify-center gap-2 hover:border-red-500" onclick="showToast('SENTINELS DISPATCHED TO ' + '${t.loc}', 'danger')">
+                                    <i data-lucide="crosshair" class="w-4 h-4"></i> DEPLOY UNIT
+                                </button>
+                                <button class="bg-black/40 border border-purple-500/50 text-purple-300 flex-1 py-4 hover:bg-purple-500/20 hover:text-white transition-all text-xs tracking-widest uppercase flex items-center justify-center gap-2" onclick="showToast('NEURAL INTERFACE RESET...', 'warning')">
+                                    <i data-lucide="brain-circuit" class="w-4 h-4"></i> Recalibrate
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // MODULE: DEFENSE
+    function renderDefense() {
+        return `
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full pb-2">
+                <!-- RADAR -->
+                <div class="glass corner-accent p-0 relative h-96 lg:h-auto bg-black overflow-hidden flex items-center justify-center group">
+                    <div class="absolute top-4 left-4 z-10 font-bold text-xs text-green-500 flex items-center gap-2">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        PERIMETER RADAR // LIVE
+                    </div>
+                    
+                    <!-- Radar Visuals -->
+                    <div class="w-[80%] aspect-square rounded-full border border-green-900/50 absolute"></div>
+                    <div class="w-[55%] aspect-square rounded-full border border-green-900/50 absolute"></div>
+                    <div class="w-[30%] aspect-square rounded-full border border-green-900/50 absolute bg-green-900/5"></div>
+                    <div class="absolute w-full h-px bg-green-900/50"></div>
+                    <div class="absolute h-full w-px bg-green-900/50"></div>
+
+                    <!-- Radar Sweep -->
+                    <div class="absolute w-[80%] aspect-square rounded-full origin-center" 
+                         style="background: conic-gradient(from 0deg, transparent 0deg, rgba(16, 185, 129, 0.2) 60deg, transparent 60.1deg); animation: spin 4s linear infinite;"></div>
+                    
+                    <!-- Blips -->
+                    <div class="absolute w-2 h-2 bg-red-500 rounded-full animate-ping" style="top: 30%; left: 70%">
+                        <div class="absolute top-3 left-0 text-[8px] text-red-500 font-mono whitespace-nowrap opacity-0 group-hover:opacity-100">UNIDENTIFIED</div>
+                    </div>
+                    <div class="absolute w-1.5 h-1.5 bg-yellow-500 rounded-full" style="top: 60%; left: 20%"></div>
+                    <div class="absolute w-1.5 h-1.5 bg-yellow-500 rounded-full" style="top: 65%; left: 25%"></div>
+                </div>
+
+                <!-- STATUS PANEL -->
+                <div class="glass corner-accent p-8 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-white font-bold mb-6 tracking-widest border-b border-white/10 pb-2 flex items-center gap-2">
+                            <i data-lucide="shield" class="w-4 h-4 text-purple-500"></i> DEFENSE ASSETS
+                        </h3>
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm text-gray-400">SENTINEL UNITS</div>
+                                    <div class="text-xl font-mono text-white">200,000 <span class="text-xs text-green-500 ml-2 bg-green-900/20 px-2 py-0.5 rounded">READY</span></div>
+                                </div>
+                                <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-green-500 h-full w-full shadow-[0_0_10px_#10b981]"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="text-sm text-gray-400">AERIAL DRONES</div>
+                                    <div class="text-xl font-mono text-white">2.25M <span class="text-xs text-yellow-500 ml-2 bg-yellow-900/20 px-2 py-0.5 rounded">PATROLLING</span></div>
+                                </div>
+                                <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-yellow-500 h-full w-3/4"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
+                         <h3 class="text-white font-bold mb-4 tracking-widest border-b border-white/10 pb-2">ACTIVE ZONES</h3>
+                         <div class="grid grid-cols-2 gap-3 text-xs font-mono">
+                             <div class="p-3 bg-green-900/10 border border-green-900 text-green-400 text-center rounded flex flex-col items-center justify-center gap-1">
+                                 <i data-lucide="zap" class="w-4 h-4 mb-1"></i> HOOVER DAM
+                             </div>
+                             <div class="p-3 bg-green-900/10 border border-green-900 text-green-400 text-center rounded flex flex-col items-center justify-center gap-1">
+                                 <i data-lucide="star" class="w-4 h-4 mb-1"></i> THE STRIP
+                             </div>
+                             <div class="p-3 bg-red-900/10 border border-red-900 text-red-400 text-center rounded animate-pulse flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-red-900/30" onclick="showToast('SECTOR 9 REINFORCED', 'warning')">
+                                 <i data-lucide="alert-octagon" class="w-4 h-4 mb-1"></i> SECTOR 9
+                             </div>
+                             <div class="p-3 bg-green-900/10 border border-green-900 text-green-400 text-center rounded flex flex-col items-center justify-center gap-1">
+                                 <i data-lucide="wall" class="w-4 h-4 mb-1"></i> BORDER WALL
+                             </div>
+                         </div>
+                    </div>
+
+                    <button class="cyber-btn w-full py-4 mt-6 text-xs border-red-500 text-red-400 hover:text-white" onclick="showToast('DEFCON CHANGE REQUEST DENIED BY ORACLE', 'danger')">
+                        <i data-lucide="lock" class="w-3 h-3 inline mr-2"></i> CHANGE DEFCON LEVEL
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    // MODULE: NEXUS
+    function renderNexus() {
+        return `
+             <div class="flex flex-col h-full pb-2">
+                <div class="glass p-6 mb-6 flex justify-between items-center bg-black/40">
+                    <div class="flex items-center gap-4">
+                        <div class="p-3 bg-purple-900/20 rounded border border-purple-500/50">
+                            <i data-lucide="network" class="w-8 h-8 text-purple-400"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-white neon-text font-orbitron">NEXUS DATA EXCHANGE</h1>
+                            <div class="text-xs text-purple-400 font-mono tracking-wider">GLOBAL TRAFFIC MONITORING</div>
+                        </div>
+                    </div>
+                    <div class="text-right font-mono">
+                         <div class="text-4xl font-bold text-gold">42.8 <span class="text-lg text-gray-500">TB/s</span></div>
+                         <div class="text-xs text-gray-500 uppercase tracking-widest">Throughput</div>
+                    </div>
+                </div>
+
+                <!-- SCROLLING CODE WATERFALL -->
+                <div class="flex-1 glass corner-accent relative overflow-hidden bg-black/90 font-mono text-xs flex flex-col">
+                    <div class="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/20 via-transparent to-black/90 z-20"></div>
+                    <div class="absolute top-2 left-4 z-20 text-[10px] text-green-500 bg-black/80 px-2 border border-green-900">LIVE INTERCEPTS</div>
+                    
+                    <div id="nexus-stream" class="flex-1 overflow-hidden flex flex-col-reverse p-4 pt-10">
+                        <!-- Content populated by simulation loop -->
+                        ${Array.from({length: 12}).map((_, i) => `
+                            <div class="flex gap-4 mb-1 opacity-${Math.max(20, 100 - i*8)}">
+                                <span class="text-purple-500 w-20">${new Date().toLocaleTimeString()}</span>
+                                <span class="text-white w-24">PKT_${Math.floor(Math.random()*9999)}</span>
+                                <span class="text-gray-400 flex-1 truncate">SRC: ${['ARASAKA', 'MILITECH', 'UNKNOWN', 'LOCAL'][Math.floor(Math.random()*4)]}_NODE</span>
+                                <span class="text-green-500">VERIFIED</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // MODULE: ECONOMY
+    function renderEconomy() {
+        return `
+            <div class="space-y-6 h-full pb-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass p-6 text-center border-t-4 border-green-500 relative group overflow-hidden">
+                        <div class="absolute inset-0 bg-green-500/5 -translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                        <div class="text-4xl font-bold text-white mb-1 font-mono">$6.74T</div>
+                        <div class="text-xs text-gray-500 tracking-widest uppercase">Gross Domestic Product</div>
+                    </div>
+                    <div class="glass p-6 text-center border-t-4 border-gold relative group overflow-hidden">
+                         <div class="absolute inset-0 bg-gold/5 -translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                        <div class="text-4xl font-bold text-white mb-1">+9.7%</div>
+                        <div class="text-xs text-gray-500 tracking-widest uppercase">Annual Growth</div>
+                    </div>
+                    <div class="glass p-6 text-center border-t-4 border-purple-500 relative group overflow-hidden">
+                         <div class="absolute inset-0 bg-purple-500/5 -translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                        <div class="text-4xl font-bold text-white mb-1">$148K</div>
+                        <div class="text-xs text-gray-500 tracking-widest uppercase">Avg Per Capita</div>
+                    </div>
+                </div>
+
+                <div class="glass corner-accent p-8 flex-1">
+                    <h3 class="text-white font-bold mb-8 tracking-widest text-lg border-b border-white/10 pb-4">REVENUE DISTRIBUTION</h3>
+                    <div class="space-y-6">
+                        ${[
+                            { label: "INFO TECH & DATA", val: "1.87T", pct: 28, color: "bg-purple-600" },
+                            { label: "ENTERTAINMENT", val: "1.47T", pct: 22, color: "bg-purple-500" },
+                            { label: "FINANCIAL SERVICES", val: "1.20T", pct: 18, color: "bg-purple-400" },
+                            { label: "MANUFACTURING", val: "1.00T", pct: 15, color: "bg-gold" }
+                        ].map(item => `
+                             <div class="flex items-center group">
+                                <div class="w-40 text-xs text-gray-400 font-bold">${item.label}</div>
+                                <div class="flex-1 h-8 bg-gray-900/50 rounded-sm relative overflow-hidden border border-white/5 group-hover:border-white/20 transition-colors">
+                                    <div class="absolute inset-y-0 left-0 ${item.color} flex items-center pl-3 text-xs text-white font-bold transition-all duration-1000 w-0 animate-[grow_1s_ease-out_forwards]" style="--w: ${item.pct}%">
+                                        ${item.pct}%
+                                    </div>
+                                    <style>@keyframes grow { to { width: var(--w); } }</style>
+                                </div>
+                                <div class="w-24 text-right text-sm text-white font-mono">$${item.val}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // MODULE: SPIRE
+    function renderSpire() {
+        return `
+            <div class="max-w-5xl mx-auto h-full pb-2">
+                <div class="glass corner-accent p-12 text-center relative overflow-hidden mb-8 group">
+                    <div class="absolute inset-0 bg-purple-900/10 z-0 group-hover:bg-purple-900/20 transition-colors duration-500"></div>
+                    <div class="relative z-10 flex flex-col items-center">
+                        <div class="w-40 h-40 rounded-full border-4 border-purple-500 flex items-center justify-center mb-6 relative bg-black shadow-[0_0_80px_rgba(168,85,247,0.3)]">
+                             <div class="absolute inset-2 rounded-full border border-gold opacity-50 animate-ping"></div>
+                             <span class="text-7xl font-bold text-white neon-text font-orbitron">S</span>
+                        </div>
+                        <h1 class="text-4xl font-bold text-white mb-2 font-orbitron tracking-tight">MARCUS SINCLAIR</h1>
+                        <div class="text-sm font-mono text-gold tracking-widest border px-4 py-1.5 rounded border-gold/30 bg-gold/10 mt-2">STATUS: LIFE SUPPORT ACTIVE</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass p-8 border-l-4 border-green-500">
+                        <h3 class="font-bold text-white mb-6 tracking-wider text-sm">BIO-RHYTHM MONITOR</h3>
+                        <!-- Simulated Heartbeat Graph -->
+                        <div class="h-32 bg-black/50 border border-green-900/50 relative overflow-hidden flex items-center mb-4 rounded">
+                             <div class="absolute inset-0 flex items-center">
+                                 <svg class="w-full h-24 text-green-500 stroke-current fill-none drop-shadow-[0_0_5px_#10b981]" viewBox="0 0 300 50" preserveAspectRatio="none">
+                                     <path d="M0 25 L10 25 L15 5 L20 45 L25 25 L40 25 L45 10 L50 40 L55 25 L300 25" stroke-width="2" vector-effect="non-scaling-stroke">
+                                         <animateTransform attributeName="transform" type="translate" from="0 0" to="-100 0" dur="1.5s" repeatCount="indefinite" />
+                                     </path>
+                                 </svg>
+                             </div>
+                             <div class="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-black to-transparent"></div>
+                        </div>
+                        <div class="flex justify-between mt-2 text-xs font-mono text-green-400 uppercase">
+                            <span>BPM: 62</span>
+                            <span>O2 Sat: 99%</span>
+                            <span>Neural: STABLE</span>
+                        </div>
+                    </div>
+
+                    <div class="glass p-8 border-l-4 border-purple-500">
+                        <h3 class="font-bold text-white mb-6 tracking-wider text-sm">CONSCIOUSNESS INTEGRITY</h3>
+                        <div class="space-y-6">
+                            ${[
+                                { label: "SYNAPTIC RESPONSE", val: "99.9%", color: "bg-purple-500" },
+                                { label: "MEMORY RECALL", val: "98.4%", color: "bg-purple-500" },
+                                { label: "HOLOGRAPHIC STABILITY", val: "100%", color: "bg-gold" }
+                            ].map(m => `
+                                <div>
+                                    <div class="flex justify-between text-xs mb-2 text-gray-400 font-bold">
+                                        <span>${m.label}</span>
+                                        <span class="text-white">${m.val}</span>
+                                    </div>
+                                    <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                        <div class="${m.color} h-full w-[${parseInt(m.val)}%] shadow-[0_0_10px_currentColor]"></div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // MODULE: POPULATION
+    function renderPopulation() {
+        return `
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full pb-2">
+                ${[
+                    { name: "EXECUTIVE", pct: 0.5, count: "226,055", income: "$800K+", color: "text-gold border-gold" },
+                    { name: "PROFESSIONAL", pct: 12, count: "5.4M", income: "$120K+", color: "text-purple-300 border-purple-500" },
+                    { name: "TECHNICAL", pct: 27, count: "12.2M", income: "$45K+", color: "text-blue-300 border-blue-500" },
+                    { name: "LABOR", pct: 60.5, count: "27.3M", income: "$18K", color: "text-gray-400 border-gray-600" }
+                ].map(tier => `
+                    <div class="glass p-8 relative overflow-hidden group hover:bg-white/5 transition-all cursor-default">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 text-7xl font-bold font-mono group-hover:opacity-20 transition-opacity select-none">${tier.pct}%</div>
+                        
+                        <div class="relative z-10">
+                             <h3 class="text-3xl font-bold mb-2 font-orbitron ${tier.color.split(' ')[0]}">${tier.name} TIER</h3>
+                            <div class="text-lg text-white mb-6 font-mono">${tier.count} Citizens</div>
+                            
+                            <div class="space-y-3 text-xs font-mono opacity-80 border-t border-white/10 pt-4">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">AVG INCOME</span>
+                                    <span class="text-white">${tier.income}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-500">HOUSING</span>
+                                    <span class="text-white">${tier.name === 'LABOR' ? 'ARCOLOGY BLOCK' : tier.name === 'EXECUTIVE' ? 'SPIRE PENTHOUSE' : 'STANDARD UNIT'}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-0 left-0 h-1 bg-current w-full ${tier.color.split(' ')[0]} opacity-50"></div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // MODULE: ARCHIVES
+    function renderArchives() {
+        return `
+            <div class="h-full flex flex-col pb-2">
+                <div class="glass p-6 mb-6">
+                    <h1 class="text-3xl font-bold text-white neon-text font-orbitron">HISTORICAL ARCHIVES</h1>
+                    <div class="text-xs text-purple-400 font-mono mt-1">CLEARANCE LEVEL: PUBLIC</div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                     ${[
+                         { year: "2037", title: "OPERATION SILENT DAWN", desc: "Sinclair forces seize Hoover Dam. Power cut to Union territories. Independence declared." },
+                         { year: "2041", title: "THE WITHDRAWAL", desc: "Marcus Sinclair enters Chamber Omega. Executive Council established. Last public sighting." },
+                         { year: "2051", title: "LAS VEGAS ACCORDS", desc: "Global recognition of Mandate sovereignty. Vegas becomes neutral ground for corporate commerce." }
+                     ].map(event => `
+                        <div class="glass p-6 border-t-2 border-purple-500 group hover:bg-purple-900/10 transition-colors">
+                            <div class="text-5xl font-bold text-purple-900 group-hover:text-purple-700 transition-colors mb-4 font-mono select-none">${event.year}</div>
+                            <h3 class="text-xl font-bold text-gold mb-3 font-orbitron">${event.title}</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed font-mono">${event.desc}</p>
+                        </div>
+                     `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+</script>
+</body>
+</html>
